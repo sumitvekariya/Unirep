@@ -5,6 +5,7 @@ import * as snarkjs from 'snarkjs'
 import * as crypto from '@unirep/crypto'
 import * as fastFile from 'fastfile'
 import { stringifyBigInts } from '@unirep/crypto'
+import { performance } from 'perf_hooks'
 import {
     proveReputationCircuitPath,
     MAX_REPUTATION_BUDGET,
@@ -64,7 +65,7 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
                 1,
                 x
             )
-            const startTime = new Date().getTime()
+            const startTime = performance.now()
             const { proof, publicSignals } = await snarkjs.groth16.fullProve(
                 inputs,
                 wasmOut,
@@ -72,7 +73,7 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
             )
             // discard the first run to warm up the caches
             if (y > -1) {
-                totalTime += +new Date() - startTime
+                totalTime += +performance.now() - startTime
             }
             const isValid = await snarkjs.groth16.verify(
                 vkeyJson,
