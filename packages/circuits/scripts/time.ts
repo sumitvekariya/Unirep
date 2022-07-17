@@ -22,7 +22,7 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
     const circomPath = path.join(__dirname, proveReputationCircuitPath)
     const provePath = path.join(__dirname, '../circuits/proveReputation.circom')
 
-    for (let x = 10; x < 32; x += 2) {
+    for (let x = 10; x <= 32; x += 2) {
         // create .circom file
         const testCircuitContent = `include "${provePath}" \n\ncomponent main = ProveReputation(${x}, ${USER_STATE_TREE_DEPTH}, ${EPOCH_TREE_DEPTH}, ${NUM_EPOCH_KEY_NONCE_PER_EPOCH}, ${MAX_REPUTATION_BUDGET}, 252)`
         fs.writeFileSync(circomPath, testCircuitContent)
@@ -45,37 +45,47 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
         )
         await snarkjs.zKey.newZKey(r1cs, ptau, zkey)
         const vkeyJson = await snarkjs.zKey.exportVerificationKey(zkey)
-        const r = new Reputation(
-            BigInt(100),
-            BigInt(10),
-            BigInt(289891289),
-            BigInt(1)
+        const TOTAL_RUNS = 5
+        let totalTime = 0
+        for (let y = 0; y < TOTAL_RUNS; y++) {
+            const r = new Reputation(
+                BigInt(100),
+                BigInt(10),
+                BigInt(289891289),
+                BigInt(1)
+            )
+            const inputs = await genReputationCircuitInput(
+                new crypto.ZkIdentity(),
+                1,
+                0,
+                {
+                    1: r,
+                },
+                1,
+                x
+            )
+            const startTime = new Date().getTime()
+            const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+                inputs,
+                wasmOut,
+                zkey
+            )
+            totalTime += +new Date() - startTime
+            const isValid = await snarkjs.groth16.verify(
+                vkeyJson,
+                publicSignals,
+                proof
+            )
+            if (!isValid) throw new Error('invalid')
+        }
+        const average = Math.floor(totalTime / TOTAL_RUNS)
+        console.log(
+            `Proving time for GST depth ${x}: ${average} ms (${
+                average / 1000
+            } s)`
         )
-        const inputs = await genReputationCircuitInput(
-            new crypto.ZkIdentity(),
-            1,
-            0,
-            {
-                1: r,
-            },
-            1,
-            x
-        )
-        const startTime = new Date().getTime()
-        const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-            inputs,
-            wasmOut,
-            zkey
-        )
-        const time = +new Date() - startTime
-        console.log(`Timing for depth ${x}: ${time} ms (${time / 1000} s)`)
-        const isValid = await snarkjs.groth16.verify(
-            vkeyJson,
-            publicSignals,
-            proof
-        )
-        if (!isValid) throw new Error('invalid')
     }
+    process.exit()
 })()
 
 function genReputationCircuitInput(
