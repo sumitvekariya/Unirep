@@ -47,7 +47,7 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
         const vkeyJson = await snarkjs.zKey.exportVerificationKey(zkey)
         const TOTAL_RUNS = 5
         let totalTime = 0
-        for (let y = 0; y < TOTAL_RUNS; y++) {
+        for (let y = -1; y < TOTAL_RUNS; y++) {
             const r = new Reputation(
                 BigInt(100),
                 BigInt(10),
@@ -70,7 +70,10 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
                 wasmOut,
                 zkey
             )
-            totalTime += +new Date() - startTime
+            // discard the first run to warm up the caches
+            if (y > -1) {
+                totalTime += +new Date() - startTime
+            }
             const isValid = await snarkjs.groth16.verify(
                 vkeyJson,
                 publicSignals,
