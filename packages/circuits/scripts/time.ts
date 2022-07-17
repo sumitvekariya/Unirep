@@ -25,7 +25,8 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
 
     for (let x = 10; x <= 32; x += 2) {
         // create .circom file
-        const testCircuitContent = `include "${provePath}" \n\ncomponent main = ProveReputation(${x}, ${USER_STATE_TREE_DEPTH}, ${EPOCH_TREE_DEPTH}, ${NUM_EPOCH_KEY_NONCE_PER_EPOCH}, ${MAX_REPUTATION_BUDGET}, 252)`
+        const GST = 32
+        const testCircuitContent = `include "${provePath}" \n\ncomponent main = ProveReputation(${GST}, ${x}, ${EPOCH_TREE_DEPTH}, ${NUM_EPOCH_KEY_NONCE_PER_EPOCH}, ${MAX_REPUTATION_BUDGET}, 252)`
         fs.writeFileSync(circomPath, testCircuitContent)
         const r1cs = path.join(dirpath, 'proveRep.r1cs')
         const zkey = path.join(dirpath, 'proveRep.zkey')
@@ -63,6 +64,7 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
                     1: r,
                 },
                 1,
+                GST,
                 x
             )
             const startTime = performance.now()
@@ -84,7 +86,7 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
         }
         const average = Math.floor(totalTime / TOTAL_RUNS)
         console.log(
-            `Proving time for GST depth ${x}: ${average} ms (${
+            `GST depth ${GST}, UST depth ${x}: ${average} ms (${
                 average / 1000
             } s)`
         )
@@ -98,7 +100,8 @@ function genReputationCircuitInput(
     nonce: number,
     reputationRecords,
     attesterId,
-    gstDepth
+    gstDepth,
+    ustDepth
 ) {
     const epk = genEpochKey(id.identityNullifier, epoch, nonce)
     const repNullifiersAmount = 0
@@ -111,7 +114,7 @@ function genReputationCircuitInput(
     }
 
     // User state tree
-    const userStateTree = genNewUserStateTree()
+    const userStateTree = genNewUserStateTree(ustDepth)
     for (const attester of Object.keys(reputationRecords)) {
         userStateTree.update(
             BigInt(attester),
