@@ -25,7 +25,8 @@ const dirpath = fs.mkdtempSync('/tmp/unirep')
 
     for (let x = 10; x <= 32; x += 2) {
         // create .circom file
-        const GST = 32
+        const GST = 27
+        const UST = 20
         const testCircuitContent = `include "${provePath}" \n\ncomponent main = ProveReputation(${GST}, ${x}, ${EPOCH_TREE_DEPTH}, ${NUM_EPOCH_KEY_NONCE_PER_EPOCH}, ${MAX_REPUTATION_BUDGET}, 252)`
         fs.writeFileSync(circomPath, testCircuitContent)
         const r1cs = path.join(dirpath, 'proveRep.r1cs')
