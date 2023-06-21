@@ -102,6 +102,9 @@ jobs:
                   command: |
                       diff $ABI_ORIGIN $ABI_COPY
                       rm $ABI_COPY
+            - run:
+                  name: Benchmark Script
+                  command: yarn circuits time
             - persist_to_workspace:
                   root: ~/project
                   paths:
