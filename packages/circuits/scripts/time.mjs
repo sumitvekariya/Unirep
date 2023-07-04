@@ -4,6 +4,7 @@ import * as snarkjs from 'snarkjs'
 import child_process from 'child_process'
 import { ptauName } from './circuits.mjs'
 import os from 'os'
+import url from 'url'
 import { copyAtomic } from './copyAtomic.mjs'
 import config from '../dist/src/CircuitConfig.js'
 import { Identity } from '@semaphore-protocol/identity'
@@ -24,12 +25,14 @@ const {
     REPL_NONCE_BITS,
 } = config.default
 
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
+
 const buildDir = await fs.promises.mkdtemp(
     path.join(os.tmpdir(), 'zksnarkBuild-')
 )
-const outDir = './benchmark'
+const outDir = path.join(__dirname, '../benchmark')
 await fs.promises.mkdir(outDir, { recursive: true })
-const ptauDir = './zksnarkBuild'
+const ptauDir = path.join(__dirname, '../zksnarkBuild')
 
 function getCircuit(config) {
     return `
@@ -54,7 +57,7 @@ function getCircuit(config) {
 function buildCircuitName(config) {
     let name = ''
     for (const [key, value] of Object.entries(config)) {
-        name += `${key}_${value}`
+        name += `${key}_${value}_`
     }
     return name
 }
@@ -62,10 +65,10 @@ function buildCircuitName(config) {
 async function buildSnark(config) {
     const name = buildCircuitName(config)
     console.log('File name: ', name)
-    const inputFileOut = path.join(outDir, `${name}_main.circom`)
-    const circuitOut = path.join(outDir, `${name}_main.r1cs`)
-    const circuitBuild = path.join(buildDir, `${name}_main.r1cs`)
-    const wasmOut = path.join(buildDir, `${name}_main_js/${name}_main.wasm`)
+    const inputFileOut = path.join(outDir, `${name}main.circom`)
+    const circuitOut = path.join(outDir, `${name}main.r1cs`)
+    const circuitBuild = path.join(buildDir, `${name}main.r1cs`)
+    const wasmOut = path.join(buildDir, `${name}main_js/${name}main.wasm`)
     const wasmOutFinal = path.join(outDir, `${name}.wasm`)
     const zkeyBuild = path.join(buildDir, `${name}.zkey`)
     const vkOutBuild = path.join(buildDir, `${name}.vkey.json`)

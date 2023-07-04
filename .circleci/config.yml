@@ -64,16 +64,6 @@ step_defs:
               sudo wget -O /usr/bin/circom https://github.com/iden3/circom/releases/download/v2.1.5/circom-linux-amd64
               sudo chmod +x /usr/bin/circom
               circom --version
-    - run: &install_circom
-          name: Install Circom
-          command: |
-              curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
-              source "$HOME/.cargo/env"
-              cd /tmp
-              git clone https://github.com/iden3/circom.git
-              cd circom
-              cargo build --release
-              cargo install --path circom
 
 jobs:
     build:
@@ -109,16 +99,7 @@ jobs:
                   root: ~/project
                   paths:
                       - node_modules
-                      - packages/circuits/zksnarkBuild
-                      - packages/circuits/dist
-                      - packages/contracts/build
-                      - packages/contracts/cache
-                      - packages/contracts/typechain
-                      - packages/contracts/contracts/verifiers
-                      - packages/core/build
-                      - packages/core/cache
-                      - packages/test/build
-                      - packages/utils/build
+                      - packages/
     lint:
         machine:
             image: ubuntu-2204:2022.04.1
@@ -160,9 +141,13 @@ jobs:
                   at: ~/project
             - run: *node_version
             - run: *check_version
+            - run: *download_circom
             - run:
                   name: Test
                   command: yarn circuits test
+            - run:
+                  name: Benchmark
+                  command: yarn circuits time
     contracts-test:
         parallelism: 4
         resource_class: large
