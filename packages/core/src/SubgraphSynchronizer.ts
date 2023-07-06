@@ -1,9 +1,11 @@
-import fetch from 'node-fetch'
 import { IncrementalMerkleTree } from '@unirep/utils'
 import { ethers } from 'ethers'
 import { getUnirepContract } from '@unirep/contracts'
 import { toDecString } from './Synchronizer'
 import { DB, TransactionDB } from 'anondb'
+import fetch from 'node-fetch'
+
+global.fetch = fetch
 
 export class SubgraphSynchronizer {
     private _url
