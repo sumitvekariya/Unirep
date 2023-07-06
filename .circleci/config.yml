@@ -151,6 +151,11 @@ jobs:
                       cd packages/core
                       TEST_FILES=$(circleci tests glob "test/*.test.ts" | circleci tests split)
                       yarn test-ci $TEST_FILES
+            - run:
+                  name: Subgraph test
+                  command: |
+                      ./scripts/subgraphSynchronizer.sh
+                      yarn core test:subgraph
     circuits-test:
         resource_class: medium
         machine:

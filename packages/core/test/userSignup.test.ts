@@ -111,6 +111,10 @@ describe('User Signup', function () {
         const contractEpoch = await unirepContract.attesterCurrentEpoch(
             attester.address
         )
+        const stateTree = new IncrementalMerkleTree(
+            config.stateTreeDepth,
+            BigInt(0)
+        )
         const userState = await genUserState(
             ethers.provider,
             unirepContract.address,
@@ -129,12 +133,25 @@ describe('User Signup', function () {
             attester.address,
             contractEpoch
         )
+        const stateTreeLeaf = genStateTreeLeaf(
+            id.secret,
+            attester.address,
+            contractEpoch,
+            data
+        )
+        stateTree.insert(stateTreeLeaf)
 
-        await unirepContract
+        const receipt = await unirepContract
             .connect(attester)
             .manualUserSignUp(contractEpoch, id.commitment, idHash, data)
             .then((t) => t.wait())
+        console.log(
+            receipt.events.map((n) => {
+                console.log(n.args)
+            })
+        )
         await userState.waitForSync()
+
         const _data = await userState.getData()
         for (let x = 0; x < config.fieldCount; x++) {
             if (x < config.sumFieldCount) {
@@ -148,6 +165,11 @@ describe('User Signup', function () {
                 )
             }
         }
+        const contractStateTreeRoot =
+            await unirepContract.attesterStateTreeRoot(attester.address)
+        expect(contractStateTreeRoot.toString()).to.equal(
+            stateTree.root.toString()
+        )
         await userState.sync.stop()
     })
 })

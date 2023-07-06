@@ -22,6 +22,7 @@
         "build": "tsc",
         "test": "hardhat test test/*.test.ts",
         "test-ci": "hardhat test --parallel",
+        "test:subgraph": "hardhat test test/subgraph/*.test.ts",
         "lint": "prettier --write ."
     },
     "devDependencies": {
@@ -33,6 +34,7 @@
     },
     "dependencies": {
         "@semaphore-protocol/identity": "^3.5.0",
+        "@types/node-fetch": "^2.6.4",
         "@unirep/circuits": "2.0.0-beta-3",
         "@unirep/contracts": "2.0.0-beta-3",
         "@unirep/utils": "2.0.0-beta-3",

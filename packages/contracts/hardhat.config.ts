@@ -17,6 +17,9 @@ const config: HardhatUserConfig = {
         local: {
             url: 'http://localhost:8545',
         },
+        subgraph: {
+            url: 'http://localhost:18545',
+        },
     },
     solidity: {
         compilers: [
