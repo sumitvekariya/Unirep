@@ -88,7 +88,7 @@ By default, The `artifacts` directory will be found in `./packages/contracts/bui
 
 ### Deploy UniRep contract
 
-Deploy Unirep smart contract with default [config](../circuits/config/index.ts):
+Deploy Unirep smart contract with default [config](../circuits/src/CircuitConfig.ts):
 
 ```typescript
 import { ethers } from 'ethers'
