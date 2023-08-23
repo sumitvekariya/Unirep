@@ -7,6 +7,7 @@ export * from './ReputationProof'
 export * from './SignupProof'
 export * from './UserStateTransitionProof'
 export * from './PreventDoubleActionProof'
+export * from './DataProof'
 
 export * from './CircuitConfig'
 export { SNARK_SCALAR_FIELD } from '@unirep/utils'

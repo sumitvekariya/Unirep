@@ -22,4 +22,5 @@ export const circuitContents = {
     incrementalMerkleTree: `pragma circom 2.0.0; include "../circuits/incrementalMerkleTree.circom"; \n\ncomponent main = MerkleTreeInclusionProof(${STATE_TREE_DEPTH});`,
     lowerComparators: `pragma circom 2.0.0; include "../circuits/bigComparators.circom"; \n\ncomponent main = LowerLessThan(64);`,
     preventDoubleAction: `pragma circom 2.0.0; include "../circuits/preventDoubleAction.circom"; \n\ncomponent main { public [ sig_data ] } = PreventDoubleAction(${STATE_TREE_DEPTH}, ${NUM_EPOCH_KEY_NONCE_PER_EPOCH}, ${FIELD_COUNT});`,
+    dataProof: `pragma circom 2.0.0; include "../circuits/dataProof.circom"; \n\ncomponent main { public [ value ] } = DataProof(${STATE_TREE_DEPTH}, ${FIELD_COUNT}, ${SUM_FIELD_COUNT});`,
 }
